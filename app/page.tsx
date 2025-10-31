@@ -26,8 +26,9 @@ export default async function HomePage() {
               </div>
               <p className="muted">
                 {p.category ? <span className="badge">#{p.category}</span> : null}
-                {p.author ? <> • 작성자: {p.author}</> : null}
+                <> • 작성자: {p.authorEmail ?? "익명"}</>
               </p>
+
               {p.imageUrl ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img src={p.imageUrl} alt="" className="thumb" />
