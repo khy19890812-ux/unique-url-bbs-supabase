@@ -2,7 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
 import { slugify } from "@/utils/slugify";
 import { createSupabaseRoute } from "@/lib/supabaseClient";
-import getSupabaseAdmin from "@/lib/supabase";  // ✅ 기본 export로 가져옵니다
+import getSupabaseAdmin from "@/lib/supabase";
 
 
 export const dynamic = "force-dynamic";
@@ -39,15 +39,15 @@ if (file && typeof file !== "string") {
     const filename = `${Date.now()}-${slug}-${(f.name || "image").replace(/[^a-zA-Z0-9._-]/g,"")}`;
 
     // ✅ 함수 호출로 클라이언트 얻어서 사용
-      const sbAdmin = getSupabaseAdmin();
-      const { data, error } = await sbAdmin
-        .storage.from(bucket)
-        .upload(filename, buffer, { contentType, upsert: false });
-      if (error) {
-        return NextResponse.json({ error: "이미지 업로드 실패" }, { status: 500 });
-      }
-      const pub = sbAdmin.storage.from(bucket).getPublicUrl(data.path);
-      imageUrl = pub.data.publicUrl;
+    const sbAdmin = getSupabaseAdmin();
+    const { data, error } = await sbAdmin
+      .storage.from(bucket)
+      .upload(filename, buffer, { contentType, upsert: false });
+    if (error) {
+      return NextResponse.json({ error: "이미지 업로드 실패" }, { status: 500 });
+    }
+    const pub = sbAdmin.storage.from(bucket).getPublicUrl(data.path);
+    imageUrl = pub.data.publicUrl;
   }
 }
 // --- 업로드 끝 ---
