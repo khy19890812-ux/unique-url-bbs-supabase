@@ -13,6 +13,7 @@ export function getSupabaseAdmin(): SupabaseClient {
   if (!url || !serviceKey) {
     throw new Error("Missing SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY");
   }
+
   adminClient = createClient(url, serviceKey, { auth: { persistSession: false } });
   return adminClient;
 }

@@ -2,7 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
 import { slugify } from "@/utils/slugify";
 import { createSupabaseRoute } from "@/lib/supabaseClient";
-import { getSupabaseAdmin } from "@/lib/supabase";
+import { getSupabaseAdmin } from "@/lib/supabase";   // ✅ 반드시 이 줄이 있어야 함
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -26,29 +26,32 @@ export async function POST(req: NextRequest) {
   const base = slugify(title) || slugify("post"); let slug = base; let n = 1;
   while (await prisma.post.findUnique({ where: { slug } })) { n += 1; slug = `${base}-${n}`; }
 
-  let imageUrl: string | null = null;
-  const bucket = process.env.SUPABASE_BUCKET ?? "uploads";
-  const file = form.get("image");
-  if (file && typeof file !== "string") {
-    const f = file as File;
-    if (f.size > 0) {
-      const buffer = Buffer.from(await f.arrayBuffer());
-      const contentType = f.type || "application/octet-stream";
-      const filename = `${Date.now()}-${slug}-${(f.name || "image").replace(/[^a-zA-Z0-9._-]/g,"")}`;
+ // --- 업로드 시작 ---
+let imageUrl: string | null = null;
+const bucket = process.env.SUPABASE_BUCKET ?? "uploads";
+const file = form.get("image");
+if (file && typeof file !== "string") {
+  const f = file as File;
+  if (f.size > 0) {
+    const buffer = Buffer.from(await f.arrayBuffer());
+    const contentType = f.type || "application/octet-stream";
+    const filename = `${Date.now()}-${slug}-${(f.name || "image").replace(/[^a-zA-Z0-9._-]/g,"")}`;
 
-      // ✅ 여기! 함수로 클라이언트 얻어서 사용
-      const sbAdmin = getSupabaseAdmin();
-      const { data, error } = await sbAdmin
-        .storage.from(bucket)
-        .upload(filename, buffer, { contentType, upsert: false });
+    // ✅ 함수 호출로 클라이언트 얻어서 사용
+    const sbAdmin = getSupabaseAdmin();
+    const { data, error } = await sbAdmin
+      .storage.from(bucket)
+      .upload(filename, buffer, { contentType, upsert: false });
 
-      if (error) {
-        return NextResponse.json({ error: "이미지 업로드 실패" }, { status: 500 });
-      }
-      const pub = sbAdmin.storage.from(bucket).getPublicUrl(data.path);
-      imageUrl = pub.data.publicUrl;
+    if (error) {
+      return NextResponse.json({ error: "이미지 업로드 실패" }, { status: 500 });
     }
+    const pub = sbAdmin.storage.from(bucket).getPublicUrl(data.path);
+    imageUrl = pub.data.publicUrl;
   }
+}
+// --- 업로드 끝 ---
+
 
   const created = await prisma.post.create({ data: { title, content, slug, category, imageUrl, authorEmail: authorEmail ?? "익명", authorId } });
   return NextResponse.json({ id: created.id, slug: created.slug });
