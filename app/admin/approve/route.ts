@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { createSupabaseRoute } from "@/lib/supabaseClient";
+export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
+
 
 function isAdminEmail(email: string | null | undefined) {
   const admins = (process.env.ADMIN_EMAILS ?? "")

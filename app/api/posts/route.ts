@@ -4,8 +4,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { slugify } from "@/utils/slugify";
 import { supabaseAdmin } from "@/lib/supabase";
 import { createSupabaseRoute } from "@/lib/supabaseClient";
-
+export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
+
 
 export async function GET() {
   const posts = await prisma.post.findMany({ orderBy: { createdAt: "desc" }, take: 50 });

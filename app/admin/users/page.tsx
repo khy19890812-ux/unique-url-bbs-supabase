@@ -1,5 +1,8 @@
 import { prisma } from "@/lib/prisma";
 import { createSupabaseServer } from "@/lib/supabaseClient";
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+export const runtime = "nodejs";
 
 function isAdminEmail(email: string | null | undefined) {
   const admins = (process.env.ADMIN_EMAILS ?? "")

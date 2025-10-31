@@ -1,6 +1,9 @@
 import { NextResponse } from "next/server";
 import { createSupabaseRoute } from "@/lib/supabaseClient";
 import { prisma } from "@/lib/prisma";
+export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
+
 
 function isAdminByEnv(email?: string | null) {
   const admins = (process.env.ADMIN_EMAILS ?? "")
