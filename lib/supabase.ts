@@ -1,12 +1,18 @@
-import { createClient } from "@supabase/supabase-js";
+// lib/supabase.ts
+import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 
-const url = process.env.SUPABASE_URL as string;
-const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY as string;
+let adminClient: SupabaseClient | null = null;
 
-if (!url || !serviceKey) {
-  console.warn("[supabase] env(SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY) not set");
+/** 서버에서만 사용. 호출 시점에 env를 읽어 생성(지연 생성) */
+export function getSupabaseAdmin(): SupabaseClient {
+  if (adminClient) return adminClient;
+
+  const url = process.env.SUPABASE_URL;
+  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+  if (!url || !serviceKey) {
+    throw new Error("Missing SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY");
+  }
+  adminClient = createClient(url, serviceKey, { auth: { persistSession: false } });
+  return adminClient;
 }
-
-export const supabaseAdmin = createClient(url ?? "", serviceKey ?? "", {
-  auth: { persistSession: false },
-});

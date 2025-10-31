@@ -4,10 +4,11 @@ import { createMiddlewareClient } from "@supabase/auth-helpers-nextjs";
 
 export async function middleware(req: NextRequest) {
   const res = NextResponse.next();
-  const supabase = createMiddlewareClient({ req, res });
-  await supabase.auth.getSession(); // 세션 쿠키 동기화
+  const sb = createMiddlewareClient({ req, res });
+  await sb.auth.getSession();
   return res;
 }
+
 export const config = {
   matcher: ["/((?!_next/static|_next/image|favicon.ico).*)"],
 };

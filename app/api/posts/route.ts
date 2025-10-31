@@ -30,14 +30,23 @@ export async function POST(req: NextRequest) {
   const bucket = process.env.SUPABASE_BUCKET ?? "uploads";
   const file = form.get("image");
   if (file && typeof file !== "string") {
-    const f = file as File; if (f.size > 0) {
+    const f = file as File;
+    if (f.size > 0) {
       const buffer = Buffer.from(await f.arrayBuffer());
       const contentType = f.type || "application/octet-stream";
       const filename = `${Date.now()}-${slug}-${(f.name || "image").replace(/[^a-zA-Z0-9._-]/g,"")}`;
+
+      // ✅ 여기! 함수로 클라이언트 얻어서 사용
       const sbAdmin = getSupabaseAdmin();
-      const { data, error } = await sbAdmin.storage.from(bucket).upload(filename, buffer, { contentType, upsert: false });
-      if (error) return NextResponse.json({ error: "이미지 업로드 실패" }, { status: 500 });
-      const pub = sbAdmin.storage.from(bucket).getPublicUrl(data.path); imageUrl = pub.data.publicUrl;
+      const { data, error } = await sbAdmin
+        .storage.from(bucket)
+        .upload(filename, buffer, { contentType, upsert: false });
+
+      if (error) {
+        return NextResponse.json({ error: "이미지 업로드 실패" }, { status: 500 });
+      }
+      const pub = sbAdmin.storage.from(bucket).getPublicUrl(data.path);
+      imageUrl = pub.data.publicUrl;
     }
   }
 
