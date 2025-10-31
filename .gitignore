@@ -1,0 +1,18 @@
+﻿# deps
+node_modules/
+
+# build outputs
+.next/
+out/
+
+# env
+.env
+.env.local
+
+# logs
+*.log
+
+# tools
+.vercel/
+.vscode/
+.idea/

@@ -1,0 +1,40 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Post {
+  id           Int       @id @default(autoincrement())
+  title        String
+  content      String
+  slug         String    @unique
+  category     String?
+  imageUrl     String?
+  authorEmail  String?   // 글쓴이 이메일(표시용)
+  authorId     String?   // Supabase Auth user id (uuid 문자열)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  comments     Comment[]
+}
+
+model Comment {
+  id        Int      @id @default(autoincrement())
+  content   String
+  author    String?
+  createdAt DateTime @default(now())
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  postId    Int
+}
+
+model UserProfile {
+  id         Int      @id @default(autoincrement())
+  userId     String   @unique  // Supabase Auth user uuid
+  email      String   @unique
+  isApproved Boolean  @default(false)
+  isAdmin    Boolean  @default(false)
+  createdAt  DateTime @default(now())
+}
